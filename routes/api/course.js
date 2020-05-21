@@ -4,7 +4,7 @@ const Course = require("../../models/Course");
 const upload = require("../../config/cloudinaryConfig");
 
 // GET ALL COURSES
-router.get("/api/courses", function(req, res, next) {
+router.get("/", function(req, res, next) {
   Course.find()
     .then(dbRes => {
       res.status(200).json(dbRes);
@@ -17,7 +17,7 @@ router.get("/api/courses", function(req, res, next) {
 });
 
 // GET ONE COURSE
-router.get("/api/courses/:id", (req, res, next) => {
+router.get("/:id", (req, res, next) => {
   Course.findById(req.params.id)
     .then(dbRes => {
       res.status(200).json(dbRes);
@@ -28,16 +28,32 @@ router.get("/api/courses/:id", (req, res, next) => {
 });
 
 // CREATE ONE COURSE
-router.post("/api/courses", upload.single("image"), (req, res, next) => {
-  const {type, time, startAddress, finishAddress, date, price, isFinished: Boolean} = req.body;
+router.post("/", (req, res, next) => {
+  const {
+    startAddress,
+    finishAddress,
+    date,
+    price,
+    duration,
+    driverID
+  } = req.body;
   console.log(req.body);
   if (req.file) {
     console.log(req.file);
     req.body.image = req.file.secure_url;
   }
-  // Course.create(newUser)
-  course
-    .create(req.body)
+  // trouver tous les drivers, en selectionner un aléatoirement, prendre son id,
+  // pour pouvoir l'inserer dans le course.console
+  const newCourse = {
+    startAddress,
+    finishAddress,
+    date,
+    driverID,
+    duration,
+    price,
+    userID: req.session.currentUser._id
+  };
+  Course.create(newCourse)
     .then(courseDocument => {
       res.status(201).json(courseDocument);
     })
@@ -47,7 +63,7 @@ router.post("/api/courses", upload.single("image"), (req, res, next) => {
 });
 
 // UPDATE COURSE
-router.patch("/api/courses/:id", (req, res, next) => {
+router.patch("/:id", (req, res, next) => {
   // Validate req body before updating maybe ?
   Course.findByIdAndUpdate(req.params.id, req.body, { new: true })
     .then(courseDocument => {
@@ -58,8 +74,8 @@ router.patch("/api/courses/:id", (req, res, next) => {
     });
 });
 
-// DELETE USER
-router.delete("/api/user/:id", (req, res, next) => {
+// DELETE COURSE
+router.delete("/:id", (req, res, next) => {
   Course.findByIdAndRemove(req.params.id)
     .then(courseDocument => {
       if (courseDocument === null) {

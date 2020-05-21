@@ -26,12 +26,12 @@ app.use(
     store: new MongoStore({ mongooseConnection: mongoose.connection }),
     secret: process.env.SESSION_SECRET,
     resave: true,
-    saveUninitialized: true,
+    saveUninitialized: true
   })
 );
 
 // Test to see if user is logged In before getting into any router.
-app.use(function (req, res, next) {
+app.use(function(req, res, next) {
   console.log(req.session.currentUser);
   next();
 });
@@ -41,10 +41,17 @@ app.use(function (req, res, next) {
  */
 
 const indexRouter = require("./routes/index");
-const authRouter = require("./routes/auth");
+const authRouter = require("./routes/api/auth");
+const userRouter = require("./routes/api/user");
+const driverRouter = require("./routes/api/driver");
+const courseRouter = require("./routes/api/course");
+const contactUsRouter = require("./routes/api/contactUs");
 
 app.use("/", indexRouter);
 app.use("/api/auth", authRouter);
-app.use("/users");
+app.use("/api/users", userRouter);
+app.use("/api/drivers", driverRouter);
+app.use("/api/courses", courseRouter);
+app.use("/api/contactUs", contactUsRouter);
 
 module.exports = app;

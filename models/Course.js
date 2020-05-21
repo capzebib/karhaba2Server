@@ -1,12 +1,8 @@
-const mongoose = require ("mongoose");
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const Course = new Schema({
-  type: {
-    type: String,
-    enum: ["simple", "hour"]
-  },
-  time: Number,
+const courseSchema = new Schema({
+  duration: { hour: Number, min: Number },
   startAddress: String,
   finishAddress: String,
   date: {
@@ -14,7 +10,7 @@ const Course = new Schema({
     default: Date.now
   },
   price: Number,
-  isFinished: Boolean,
+  isFinished: { type: Boolean, default: false },
   userID: { type: Schema.Types.ObjectId, ref: "User" },
   driverID: { type: Schema.Types.ObjectId, ref: "Driver" }
 });

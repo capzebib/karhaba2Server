@@ -2,9 +2,10 @@ var express = require("express");
 var router = express.Router();
 const User = require("../../models/User");
 const upload = require("../../config/cloudinaryConfig");
-
+const { findOneAndUpdate } = require("../../models/User");
+const Course = require("../../models/Course");
 // GET ALL USERS
-router.get("/api/users", function(req, res, next) {
+router.get("/", function(req, res, next) {
   User.find()
     .then(dbRes => {
       res.status(200).json(dbRes);
@@ -17,7 +18,7 @@ router.get("/api/users", function(req, res, next) {
 });
 
 // GET ONE USER
-router.get("/api/users/:id", (req, res, next) => {
+router.get("/:id", (req, res, next) => {
   User.findById(req.params.id)
     .then(dbRes => {
       res.status(200).json(dbRes);
@@ -28,8 +29,16 @@ router.get("/api/users/:id", (req, res, next) => {
 });
 
 // CREATE ONE USER
-router.post("/api/users", upload.single("image"), (req, res, next) => {
-  const { name, category, quantity, description, location } = req.body;
+router.post("/", upload.single("photo"), (req, res, next) => {
+  const {
+    email,
+    username,
+    gender,
+    firstname,
+    lastname,
+    birth,
+    password
+  } = req.body;
   console.log(req.body);
   if (req.file) {
     console.log(req.file);
@@ -37,8 +46,7 @@ router.post("/api/users", upload.single("image"), (req, res, next) => {
   }
 
   // User.create(newUser)
-  user
-    .create(req.body)
+  User.create(req.body)
     .then(userDocument => {
       res.status(201).json(userDocument);
     })
@@ -48,9 +56,11 @@ router.post("/api/users", upload.single("image"), (req, res, next) => {
 });
 
 // UPDATE USER
-router.patch("/api/users/:id", (req, res, next) => {
+("/api/users/");
+router.patch("/", (req, res, next) => {
   // Validate req body before updating maybe ?
-  User.findByIdAndUpdate(req.params.id, req.body, { new: true })
+  console.log(req.body);
+  User.findByIdAndUpdate(req.session.currentUser._id, req.body, { new: true })
     .then(userDocument => {
       res.status(200).json(userDocument);
     })
@@ -59,8 +69,23 @@ router.patch("/api/users/:id", (req, res, next) => {
     });
 });
 
+// /api/users/me/courses
+router.get("/me/courses", (req, res) => {
+  console.log(req);
+  Course.find({ userID: req.session.currentUser._id })
+    .populate("driverID")
+    .then(dbRes => {
+      res.status(200).json(dbRes);
+    })
+    .catch(dbErr => {
+      console.log(dbErr);
+      res.status(500).json(dbErr);
+    });
+  // Trouver dans le model course toutes les courses qui ont le meme id que le user dans la current session.
+});
+
 // DELETE USER
-router.delete("/api/user/:id", (req, res, next) => {
+router.delete("/:id", (req, res, next) => {
   User.findByIdAndRemove(req.params.id)
     .then(userDocument => {
       if (userDocument === null) {
