@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const User = require("../../models/User");
+const upload = require("../../config/cloudinaryConfig");
 
 const salt = 10;
 
@@ -22,7 +23,7 @@ router.post("/signin", (req, res, next) => {
   });
 });
 
-router.post("/signup", (req, res, next) => {
+router.post("/signup", upload.single("photo"), (req, res, next) => {
   console.log("je suis ici");
   const {
     email,
@@ -33,6 +34,7 @@ router.post("/signup", (req, res, next) => {
     gender,
     birth
   } = req.body;
+
   console.log(req.body, "this is req body");
   User.findOne({ email }).then(userDocument => {
     if (userDocument) {
@@ -40,14 +42,19 @@ router.post("/signup", (req, res, next) => {
     }
 
     const hashedPassword = bcrypt.hashSync(password, salt);
+
     const newUser = {
       email,
-      lastname,
+      password: hashedPassword,
       firstname,
-      birth,
+      lastname,
+      username,
       gender,
-      password: hashedPassword
+      birth
     };
+    if (req.file) {
+      newUser.photo = req.file.secure_url;
+    }
 
     User.create(newUser).then(newUserDocument => {
       const userObj = newUserDocument.toObject();

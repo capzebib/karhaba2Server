@@ -56,11 +56,17 @@ router.post("/", upload.single("photo"), (req, res, next) => {
 });
 
 // UPDATE USER
-("/api/users/");
-router.patch("/", (req, res, next) => {
+// ("/api/users/");
+router.patch("/", upload.single("photo"), (req, res, next) => {
   // Validate req body before updating maybe ?
-  console.log(req.body);
-  User.findByIdAndUpdate(req.session.currentUser._id, req.body, { new: true })
+  console.log("updated user", req.body);
+  const updatedUser = req.body;
+  if (req.file) {
+    updatedUser.photo = req.file.secure_url;
+  }
+  User.findByIdAndUpdate(req.session.currentUser._id, updatedUser, {
+    new: true
+  })
     .then(userDocument => {
       res.status(200).json(userDocument);
     })
