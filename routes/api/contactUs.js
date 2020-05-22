@@ -14,7 +14,7 @@ router.post("/",(req, res, next) => {
 
   ContactUs
   .create(req.body)
-    .then(contactUsDocument => {
+.then(contactUsDocument => {
       res.status(201).json(contactUsDocument);
     })
     .catch(error => {

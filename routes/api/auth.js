@@ -23,15 +23,31 @@ router.post("/signin", (req, res, next) => {
 });
 
 router.post("/signup", (req, res, next) => {
-  const { email, password, firstName, lastName, username } = req.body;
-
+  console.log("je suis ici");
+  const {
+    email,
+    password,
+    firstname,
+    lastname,
+    username,
+    gender,
+    birth
+  } = req.body;
+  console.log(req.body, "this is req body");
   User.findOne({ email }).then(userDocument => {
     if (userDocument) {
       return res.status(400).json({ message: "Email already taken" });
     }
 
     const hashedPassword = bcrypt.hashSync(password, salt);
-    const newUser = { email, lastName, firstName, password: hashedPassword };
+    const newUser = {
+      email,
+      lastname,
+      firstname,
+      birth,
+      gender,
+      password: hashedPassword
+    };
 
     User.create(newUser).then(newUserDocument => {
       const userObj = newUserDocument.toObject();
